@@ -8,19 +8,23 @@ Btrfs root partition | Label=ROOT | /dev/sda | Suggested size is 23-32 MiB, I us
 Subvolume:      @   @log        @pkg                    @snapshots
 Mountpoint:     /   /var/log    /var/cache/pacman/pkg   /.snapshots
 
-/dev/sda3 ==> Label=HOME ==> XFS
+/dev/sda3 ==> Label=HOME ==> 
+XFS home partition | Label=HOME | /dev/sda3
 Mountpoint    /home
 
-/dev/sda4 ==> Label=Swap ==> Linux Swap
 Linux Swap | Label=Swap | /dev/sda4 | If you want to be able to suspend your system you should 
 have the swap partition a little bigger than your RAM just to be safe.
+----------------------------------------
+Remminders: 
 
-------------------
-Remminder: double check what is the drives name you want to install on, it might not be /dev/sda.
-------------------
+Double check what is the drives name you want to install on, it might not be /dev/sda.
 
-This guide only the partitioning and some special quirks asociated with this setupso you should 
-probably also open the installation guide while you're at it.
+For an easier installation process I reccommmend installing Artix linux from a minimal iso via terminal
+because you can just open this guide in a browser and copy the commands.
+
+This guide only cover the partitioning, and some other stuff you have to install for this setup
+so you shoulld probably also open the installation guide while you're at it.
+----------------------------------------
 
 Partition your drive:
 cfdisk /dev/sda
@@ -49,8 +53,14 @@ mount /dev/sda1 /mnt/boot/efi/
 mount/dev/sda3 /mnt/home/
 swapon /dev/sda4
 
+-----------------------------------------
+The things you have to do a little different for this setup.
 
+You need to install the userspace utilities for the different filesystems(xfsprogs, btrfs-progs, dosfstools) 
+when using the basestrap command.
 
+In the fstab file you can remove the entry with the root partition with the mountpooint '/'(if you  don't understant
+watch the video guide on unicks.eu YouTube chanel)
 
-GRUB:
+To install GRUB you just need this command because the /boot/efi directory already exists.
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=grub
