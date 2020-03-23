@@ -1,0 +1,16 @@
+The UEFI system layout:
+
+/dev/sda1 ==> Label=EFI ==> EFI system partition (ESP)
+Mountpoint    /boot/efi
+
+/dev/sda2 ==> Label=ROOT ==> Btrfs
+Subvolume:     @   @log        @pkg                    @snapshots
+Mountpoint     /   /var/log    /var/cache/pacman/pkg   /.snapshots
+
+/dev/sda3 ==> Label=HOME ==> XFS
+Mountpoint    /home
+
+/dev/sda4 ==> Label=Swap ==> Linux Swap
+
+GRUB:
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=grub
