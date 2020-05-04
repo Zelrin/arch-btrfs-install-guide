@@ -1,4 +1,5 @@
 #!/bin/sh
+
 mkfs.vfat -F 32 -n EFI /dev/sda1
 mkfs.btrfs -L ROOT /dev/sda2
 mkfs.xfs -L HOME /dev/sda3
