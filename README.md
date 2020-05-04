@@ -33,7 +33,7 @@ You need to partition your drive for yourself, but I for the formating, btrfs su
 Partition your drive:
 cfdisk /dev/sda
 
-Format the partitions:
+Format the partitions:                                                                          
 mkfs.vfat -F 32 -n EFI /dev/sda1              
 mkfs.btrfs -L ROOT /dev/sda2                
 mkfs.xfs -L HOME /dev/sda3              
