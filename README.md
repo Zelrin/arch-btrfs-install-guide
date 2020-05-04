@@ -34,10 +34,10 @@ Partition your drive:
 cfdisk /dev/sda
 
 Format the partitions:
-mkfs.vfat -F 32 -n EFI /dev/sda1
-mkfs.btrfs -L ROOT /dev/sda2
-mkfs.xfs -L HOME /dev/sda3
-mkswap -L SWAP /dev/sda4
+mkfs.vfat -F 32 -n EFI /dev/sda1              
+mkfs.btrfs -L ROOT /dev/sda2                
+mkfs.xfs -L HOME /dev/sda3              
+mkswap -L SWAP /dev/sda4                  
 
 Creating btrfs subvolumes:
 
