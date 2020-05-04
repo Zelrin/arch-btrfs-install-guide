@@ -41,11 +41,11 @@ mkswap -L SWAP /dev/sda4
 
 Creating btrfs subvolumes:
 
-mount /dev/sda2 /mnt
-btrfs sub cr /mnt/@                                                            
-btrfs sub cr /mnt/@log                                                              
-btrfs sub cr /mnt/@pkg                                                
-btrfs sub cr /mnt/@snapshots                                                
+mount /dev/sda2 /mnt                                              
+btrfs sub cr /mnt/@                                                                                                         
+btrfs sub cr /mnt/@log                                                                                                       
+btrfs sub cr /mnt/@pkg                                                                                             
+btrfs sub cr /mnt/@snapshots                                                                                             
 
 Mounting the partitions and subvolumes:
 umount /mnt                                             
