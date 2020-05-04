@@ -30,7 +30,7 @@ Partitioning
 ----------------------------------------
 You need to partition your drive for yourself, but I for the formating, btrfs subvolume creation, partition and subvolume mounting you can use the scripts that I have made.
 
-Partition your drive:
+Partition your drive:                                               
 cfdisk /dev/sda
 
 Format the partitions:                                                                          
@@ -47,7 +47,7 @@ btrfs sub cr /mnt/@log
 btrfs sub cr /mnt/@pkg                                                                                             
 btrfs sub cr /mnt/@snapshots                                                                                             
 
-Mounting the partitions and subvolumes:
+Mounting the partitions and subvolumes:                                 
 umount /mnt                                             
 mount -o relatime,space_cache=v2,ssd,compress=lzo,subvol=@ /dev/sda2 /mnt                   
 mkdir -p /mnt/{boot/efi,home,var/log,var/cache/pacman/pkg,btrfs}                                      
