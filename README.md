@@ -32,32 +32,7 @@ You need to partition your drive for yourself, but I for the formating, btrfs su
 
 Partition your drive:                                               
 cfdisk /dev/sda
-
-Format the partitions:                                                                          
-mkfs.vfat -F 32 -n EFI /dev/sda1              
-mkfs.btrfs -L ROOT /dev/sda2                
-mkfs.xfs -L HOME /dev/sda3              
-mkswap -L SWAP /dev/sda4                  
-
-Creating btrfs subvolumes:
-
-mount /dev/sda2 /mnt                                              
-btrfs sub cr /mnt/@                                                                                                         
-btrfs sub cr /mnt/@log                                                                                                       
-btrfs sub cr /mnt/@pkg                                                                                             
-btrfs sub cr /mnt/@snapshots                                                                                             
-
-Mounting the partitions and subvolumes:                                 
-umount /mnt                                             
-mount -o relatime,space_cache=v2,ssd,compress=lzo,subvol=@ /dev/sda2 /mnt                   
-mkdir -p /mnt/{boot/efi,home,var/log,var/cache/pacman/pkg,btrfs}                                      
-mount -o relatime,space_cache=v2,ssd,compress=lzo,subvol=@log /dev/sda2 /mnt/var/log                        
-mount -o relatime,space_cache=v2,ssd,compress=lzo,subvol=@pkg /dev/sda2 /mnt/var/cache/pacman/pkg/                           
-mount -o relatime,space_cache=v2,ssd,compress=lzo,subvolid=5 /dev/sda2 /mnt/btrfs                     
-mount /dev/sda1 /mnt/boot/efi/                                      
-mount /dev/sda3 /mnt/home/                              
-swapon /dev/sda4                                                  
-
+                                                 
 fstab
 -----------------------------------------
 In the fstab file you should remove the entry with the root partition with the mountpooint '/', because
