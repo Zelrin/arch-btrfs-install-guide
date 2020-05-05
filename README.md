@@ -1,5 +1,5 @@
 # arch-btrfs-install-guide
-Arch Linux installation guide with btrfs and snapper for an UEFI system, the information is from unicks.eu`s    https://www.youtube.com/watch?v=TKdZiCTh3EM, and Alu`s tutrial https://www.youtube.com/watch?v=dOXYZ8hKdmc
+Arch Linux installation guide for a setup btrfs and snapper for an UEFI system, the information is from unicks.eu`s    https://www.youtube.com/watch?v=TKdZiCTh3EM, and Alu`s tutorial https://www.youtube.com/watch?v=dOXYZ8hKdmc
 This guide covers the partitioning and GRUB installation for the snapper setup please watch unicks.eu`s tutorial. 
 I reccommend watching both tutorials and checking if my scripts are correct because I am a Linux begginer and I am prone to typos.
 
@@ -41,13 +41,12 @@ LABEL=ROOT              /               btrfs           rw,relatime,compress=lzo
 ```
 
 # GRUB
+I also made a script for installing GRUB with these contents:
 ```
-grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=grub
+pacman --needed -Sy grub efibootmgr
+grub-install --target=x86_64-efi --bootloader-id=GRUB --efi-directory=/boot/efi 
+grub-mkconfig -o /boot/grub/grub.cfg
 mkdir /boot/efi/EFI/BOOT
 cp /boot/efi/EFI/BOOT/grubx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI
-```
-You need to make a file called startup.nsh in /boot/efi/ with these contents(you can pick a different name):
-```
-bcf boot add 1 fs0:\EFI\GRUB\grub64.efi "My GRUB boot loader"
-exit
+cp startup.nsh /boot/efi
 ```
