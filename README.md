@@ -1,9 +1,9 @@
 # arch-btrfs-install-guide
-Arch Linux installation guide with btrfs and snapper for an UEFI system, this guide is based on the information from unicks.eu guide https://www.youtube.com/watch?v=TKdZiCTh3EM
-This guide only covers the partitioning. I highly reccommend watching unicks.eu tutorial and checking if my scripts are correct because I am a Linux begginer and I am prone to typos.
+Arch Linux installation guide with btrfs and snapper for an UEFI system, the information is from unicks.eu`s    https://www.youtube.com/watch?v=TKdZiCTh3EM, and Alu`s tutrial https://www.youtube.com/watch?v=dOXYZ8hKdmc
+This guide covers the partitioning and GRUB installation for the snapper setup please watch unicks.eu`s tutorial. 
+I reccommend watching both tutorials and checking if my scripts are correct because I am a Linux begginer and I am prone to typos.
 
-The partition layout:
-----------------------------------------
+# The partition layout:
 ```
 EFI system partition (ESP) | Label=EFI | /dev/sda1 | Suggested size is 260-512 MiB
 Mountpoint:   /boot/efi  
@@ -19,22 +19,17 @@ Mountpoint    /home
 
 Optional Linux Swap | Label=Swap | /dev/sda4 
 ```
-Reminders: 
-----------------------------------------
-
+# Reminders: 
 Double check what is the drives name you want to install on, it might not be /dev/sda.
-
 You need to install the userspace utilities for the different filesystems(xfsprogs, btrfs-progs, dosfstools).
 
-Partitioning
-----------------------------------------
+# Partitioning
 You need to partition your drive for yourself, but I for the formating, btrfs subvolume creation, partition and subvolume mounting you can use the scripts that I have made.
 
 Partition your drive:                                               
 cfdisk /dev/sda
                                                  
-fstab
------------------------------------------
+# fstab
 In the fstab file you should remove the entry with the root partition with the mountpooint '/', because
 the entry that is mounted at /btrfs, is the root partition (this is at least how I understood what unicks.eu said)
 
@@ -45,6 +40,14 @@ LABEL=ROOT              /               btrfs           rw,relatime,compress=lzo
 
 ```
 
-GRUB
----------------------------------------
+# GRUB
+```
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=grub
+mkdir /boot/efi/EFI/BOOT
+cp /boot/efi/EFI/BOOT/grubx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI
+```
+You need to make a file called startup.nsh in /boot/efi/ with these contents(you can pick a different name):
+```
+bcf boot add 1 fs0:\EFI\GRUB\grub64.efi "My GRUB boot loader"
+exit
+```
