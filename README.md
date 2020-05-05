@@ -1,6 +1,6 @@
 # arch-btrfs-install-guide
-Arch Linux installation guide for a setup btrfs and snapper for an UEFI system, the information is from unicks.eu`s    https://www.youtube.com/watch?v=TKdZiCTh3EM, and Alu`s tutorial https://www.youtube.com/watch?v=dOXYZ8hKdmc
-This guide covers the partitioning and GRUB installation for the snapper setup please watch unicks.eu`s tutorial. 
+Arch Linux installation guide for a setup btrfs and snapper for an UEFI system, the information is from unicks.eu    https://www.youtube.com/watch?v=TKdZiCTh3EM, and Arch Linux UEFI step-by-step installation guide https://www.youtube.com/watch?v=dOXYZ8hKdmc from Alu.
+This guide covers the partitioning and GRUB installation for the snapper setup please watch unicks.eu  tutorial. 
 I reccommend watching both tutorials and checking if my scripts are correct because I am a Linux begginer and I am prone to typos.
 
 # The partition layout:
@@ -22,6 +22,7 @@ Optional Linux Swap | Label=Swap | /dev/sda4
 # Reminders: 
 Double check what is the drives name you want to install on, it might not be /dev/sda.
 You need to install the userspace utilities for the different filesystems(xfsprogs, btrfs-progs, dosfstools).
+Make my scripts executable and 
 
 # Partitioning
 You need to partition your drive for yourself, but I for the formating, btrfs subvolume creation, partition and subvolume mounting you can use the scripts that I have made.
@@ -48,5 +49,9 @@ grub-install --target=x86_64-efi --bootloader-id=GRUB --efi-directory=/boot/efi
 grub-mkconfig -o /boot/grub/grub.cfg
 mkdir /boot/efi/EFI/BOOT
 cp /boot/efi/EFI/BOOT/grubx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI
-cp startup.nsh /boot/efi
+```
+For good measure you can create a startup script for GRUB with these contents(you can change the name):
+```
+bcf boot add 1 fs0:\EFI\GRUB\grubx64.efi "GRUB bootloader"
+exit
 ```
