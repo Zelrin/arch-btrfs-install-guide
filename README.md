@@ -188,5 +188,39 @@ tmpfs          tmpfs     4.0M     0  4.0M   0% /sys/fs/cgroup
 tmpfs          tmpfs     784M   72K  784M   1% /run/user/1000
 /dev/nvme0n1p2 btrfs      32G  7.4G   25G  24% /.snapshots
 ```
-If you want to setup 
-Enable grub-btrfs.path
+To enable that snapshots show up in GRUB
+Enable grub-btrfs.path to refresh the shapshot list
+```
+# systemctl enable grub-btrfs.path
+```
+And enable the snapshot list in the GRUB config
+
+```
+# nano /etc/default/grub
+```
+Set this option:
+```
+GRUB_DISABLE_RECOVERY=false
+```
+You can exit, now you only have to regenerate the config
+```
+# grub-mkconfig -o /boot/grub/grub.cfg
+```
+# Snapper config
+To enable pre-post pacman snapshots install snap-pac
+```
+# pacman -S snap-pac
+```
+To enable boot snapshots enable snapper-boot.timer
+```
+# systemctl enable snapper-boot.timer
+```
+You can also enable hourly snapshots and a limit to the number of shanpshots you want or other options in the snapper config
+```
+# nano /etc/snapper/configs/root
+```
+To enable hourly snapshots and snapshot cleanup, you have to enable cronie
+```
+# pacman -S --needed cronie
+# systemctl enable cron.service
+```
