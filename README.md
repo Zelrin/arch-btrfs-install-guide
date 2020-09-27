@@ -79,13 +79,54 @@ sda           8:0    1  29.9G
 └─sda1        8:1    1  29.9G   
 your_drive     259:0    0 953.9G  
 ```
-Usually sda or sdb is your usb drive with the Arch ISO
+Usually sda or sdb is your usb drive with the Arch ISO.
 Probably the biggest drive will be your computers hard drive.
+
+You can also find scripts with the most popular system configurations in the install-scripts directory, I don't recommend executing the scripts, the best way is to copy the commands one-by-one incase you need to change something inbetween the commands.
 
 I think the easiest to use partitioner is cfdisk
 ```
-cfdisk -z /dev/your_drive
-```                                                 
+# cfdisk -z /dev/your_drive
+```
+# Formatting
+```
+# mkfs.vfat -F 32 -n EFI /dev/your_drive1
+# mkfs.btrfs -L ROOT /dev/your_drive2
+```
+XFS
+```
+# mkfs.xfs -L HOME /dev/your_drive3
+```
+Or Ext4
+```
+# mkfs.ext4 -L HOME /dev/your_drive3
+```
+If you have swap
+```
+# mkswap -L SWAP /dev/your_drive4
+```
+# Mounting
+```
+# mount /dev/your_drive2 /mnt
+# btrfs sub cr /mnt/@
+# btrfs sub cr /mnt/@tmp
+# btrfs sub cr /mnt/@log
+# btrfs sub cr /mnt/@pkg
+# btrfs sub cr /mnt/@snapshots
+# umount /mnt
+# mount -o relatime,space_cache=v2,ssd,compress=lzo,subvol=@ /dev/sda2 /mnt
+# mkdir -p /mnt/{boot/efi,home,var/log,var/cache/pacman/pkg,btrfs,tmp}
+# mount -o relatime,space_cache=v2,ssd,compress=lzo,subvol=@log /dev/sda2 /mnt/var/log
+# mount -o relatime,space_cache=v2,ssd,compress=lzo,subvol=@pkg /dev/sda2 /mnt/var/cache/pacman/pkg/
+# mount -o relatime,space_cache=v2,ssd,compress=lzo,subvol=@tmp /dev/sda2 /mnt/tmp
+# mount -o relatime,space_cache=v2,ssd,compress=lzo,subvolid=5 /dev/sda2 /mnt/btrfs
+# mount /dev/your_drive1 /mnt/boot/efi/
+# mount /dev/your_drive3 /mnt/home/
+```
+If you have swap
+```
+# swapon /dev/your_drive4 
+```
 # fstab
 In the fstab file you should remove the entry with the root partition with the mountpooint '/', because
 the entry that is mounted at /btrfs, is the root partition (this is at least how I understood what unicks.eu said)
@@ -100,13 +141,13 @@ LABEL=ROOT              /               btrfs           rw,relatime,compress=lzo
 # GRUB
 Thes are the commands for installing GRUB used in ALU's tutorial.
 ```
-pacman --needed -Sy grub efibootmgr
-grub-install --target=x86_64-efi --bootloader-id=GRUB --efi-directory=/boot/efi 
-grub-mkconfig -o /boot/grub/grub.cfg
-mkdir /boot/efi/EFI/BOOT
-cp /boot/efi/EFI/GRUB/grubx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI
+# pacman --needed -Sy grub efibootmgr
+# grub-install --target=x86_64-efi --bootloader-id=GRUB --efi-directory=/boot/efi 
+# grub-mkconfig -o /boot/grub/grub.cfg
+# mkdir /boot/efi/EFI/BOOT
+# cp /boot/efi/EFI/GRUB/grubx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI
 ```
-To guarantee that GRUB boots create a startup script (/boot/efi/startup.nsh) for GRUB with these contents(you can change the name):
+To guarantee that GRUB boots, create a startup script (/boot/efi/startup.nsh) for GRUB with these contents(you can change the name):
 ```
 bcf boot add 1 fs0:\EFI\GRUB\grubx64.efi "GRUB bootloader"
 exit
@@ -114,7 +155,6 @@ exit
 You can now reboot.
 # Snapper 
 I suggest setting snapper up after you have a working system.
-This snapper section has some differences from unicks.eu's guide, mainly he sets it up so new snapshots are created before and after package management, but I just like to have 12 hourly and 7 daily snapshots, because if my system breaks after changing some root configurations and the last time I did anything with my packages was week ago, I would lose my other successful configurations.
 
 Install the required packages for snapper and btrfs:
 ```
