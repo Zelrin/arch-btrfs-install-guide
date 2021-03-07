@@ -14,8 +14,8 @@ You need to install the userspace utilities for the different filesystems(xfspro
 You can use ssh to connect to the computer you are installing Arch Linux on, so you can save time by copying the commands.
 
 # Ssh 
-I recommend connecting both of your computers to the same network because it will be much easier to connect with ssh to the computer you are installing Arch on.
-This guide only works if your second computer has Linux on it, if you don't have a second Linux computer you can look at this tutorial https://www.youtube.com/watch?v=qWKK_PNHnnA.
+I recommend connecting both of your devices to the same network because it will be much easier to connect with ssh to the computer you are installing Arch on. If you don't know what ssh is and how to connect from a different device
+https://www.youtube.com/watch?v=qWKK_PNHnnA.
 
 Setting up ssh on the Arch iso is the same regardless of which OS your second computer uses.
 
@@ -55,19 +55,23 @@ The ip address(in brackets) is after inet.
     inet6 fq80::cvfc:3bb6:5994:36c4/64 scope link noprefixroute 
        valid_lft forever preferred_lft forever
 ```
+Also set a password on the Arch ISO, it is needed to be able to connect.
+```
+passwd
+```
 
 # Partitioning
 The partition layout:
 ```
-EFI system partition (ESP) | Label=EFI | /dev/your_drive1 | Suggested size is 512 MiB
+|EFI system partition (FAT32) | Label=EFI | /dev/your_drive1 | Suggested size is 512 MiB
 Mountpoint:   /boot/efi  
 
 Btrfs root partition | Label=ROOT | /dev/your_drive2 | Suggested size is 23-32 GiB
-Subvolume:      @   @log        @tmp  @pkg                    @snapshots                                            
-Mountpoint:     /   /var/log    /tmp  /var/cache/pacman/pkg   /.snapshots
- 
-XFS or ext4 home partition | Label=HOME | /dev/your_drive3 | rest of your free space                                              
-Mountpoint    /home
+Subvolume:      @   @log        @tmp  @pkg                    @snapshots        |@home|
+Mountpoint:     /   /var/log    /tmp  /var/cache/pacman/pkg   /.snapshots       |/home|
+
+Opional XFS or ext4 home partition | Label=HOME | /dev/your_drive3 | rest of your free space                                              
+Mountpoint:    /home
 
 Optional Linux Swap | Label=Swap | /dev/your_drive4 | 2x times bigger than ram
 ```
@@ -93,39 +97,57 @@ I think the easiest to use partitioner is cfdisk
 # mkfs.vfat -F 32 -n EFI /dev/your_drive1
 # mkfs.btrfs -L ROOT /dev/your_drive2
 ```
-XFS
+If you have a separate home partition
+
 ```
 # mkfs.xfs -L HOME /dev/your_drive3
 ```
-Or Ext4
+Or
 ```
 # mkfs.ext4 -L HOME /dev/your_drive3
 ```
+
 If you have swap
 ```
 # mkswap -L SWAP /dev/your_drive4
 ```
 # Mounting
 ```
-# mount /dev/your_drive2 /mnt
-# btrfs sub cr /mnt/@
-# btrfs sub cr /mnt/@tmp
-# btrfs sub cr /mnt/@log
-# btrfs sub cr /mnt/@pkg
-# btrfs sub cr /mnt/@snapshots
-# umount /mnt
-# mount -o relatime,space_cache=v2,ssd,compress=lzo,subvol=@ /dev/sda2 /mnt
-# mkdir -p /mnt/{boot/efi,home,var/log,var/cache/pacman/pkg,btrfs,tmp}
-# mount -o relatime,space_cache=v2,ssd,compress=lzo,subvol=@log /dev/sda2 /mnt/var/log
-# mount -o relatime,space_cache=v2,ssd,compress=lzo,subvol=@pkg /dev/sda2 /mnt/var/cache/pacman/pkg/
-# mount -o relatime,space_cache=v2,ssd,compress=lzo,subvol=@tmp /dev/sda2 /mnt/tmp
-# mount -o relatime,space_cache=v2,ssd,compress=lzo,subvolid=5 /dev/sda2 /mnt/btrfs
-# mount /dev/your_drive1 /mnt/boot/efi/
-# mount /dev/your_drive3 /mnt/home/
+mount /dev/your_drive2 /mnt
+cd /mkt
+btrfs sub cr /mnt/@
+btrfs sub cr /mnt/@tmp
+btrfs sub cr /mnt/@log
+btrfs sub cr /mnt/@pkg
+btrfs sub cr /mnt/@snapshots
+```
+If you have one partition for root and home
+```
+btrfs sub cr /mnt/@home
+```
+```
+cd..
+umount /mnt
+mount -o relatime,space_cache=v2,ssd,compress=lzo,subvol=@ /dev/sda2 /mnt
+mkdir -p /mnt/{boot/efi,home,var/log,var/cache/pacman/pkg,btrfs,tmp}
+mount -o relatime,space_cache=v2,ssd,compress=lzo,subvol=@log /dev/sda2 /mnt/var/log
+mount -o relatime,space_cache=v2,ssd,compress=lzo,subvol=@pkg /dev/sda2 /mnt/var/cache/pacman/pkg/
+mount -o relatime,space_cache=v2,ssd,compress=lzo,subvol=@tmp /dev/sda2 /mnt/tmp
+```
+If you have one partition for root and home
+```
+mount -o relatime,space_cache=v2,ssd,compress=lzo,subvol=@home /dev/sda2 /mnt/home
+```
+mount -o relatime,space_cache=v2,ssd,compress=lzo,subvolid=5 /dev/sda2 /mnt/btrfs
+mount /dev/your_drive1 /mnt/boot/efi/
+```
+If you have separate home partition
+```
+mount /dev/your_drive3 /mnt/home/
 ```
 If you have swap
 ```
-# swapon /dev/your_drive4 
+swapon /dev/your_drive4 
 ```
 # fstab
 In the fstab file you should remove the entry with the root partition with the mountpooint '/', because
@@ -141,11 +163,11 @@ LABEL=ROOT              /               btrfs           rw,relatime,compress=lzo
 # GRUB
 Thes are the commands for installing GRUB used in ALU's tutorial.
 ```
-# pacman --needed -Sy grub efibootmgr
-# grub-install --target=x86_64-efi --bootloader-id=GRUB --efi-directory=/boot/efi 
-# grub-mkconfig -o /boot/grub/grub.cfg
-# mkdir /boot/efi/EFI/BOOT
-# cp /boot/efi/EFI/GRUB/grubx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI
+pacman --needed -Sy grub efibootmgr
+grub-install --target=x86_64-efi --bootloader-id=GRUB --efi-directory=/boot/efi 
+grub-mkconfig -o /boot/grub/grub.cfg
+mkdir /boot/efi/EFI/BOOT
+cp /boot/efi/EFI/GRUB/grubx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI
 ```
 To guarantee that GRUB boots, create a startup script (/boot/efi/startup.nsh) for GRUB with these contents(you can change the name):
 ```
@@ -158,11 +180,11 @@ I suggest setting snapper up after you have a working system.
 
 Install the required packages for snapper and btrfs:
 ```
-# pacman -S snapper grub-btrfs
+pacman -S snapper grub-btrfs
 ```
 Check your btrfs subvolumes:
 ```
-# btrfs sub list /
+btrfs sub list /
 ```
 They should look something like this:
 ```
@@ -176,11 +198,11 @@ ID 265 gen 35 top level 256 path var/lib/machines
 ```
 Create a snapper config for root:
 ```
-# snapper -c root create-config /
+snapper -c root create-config /
 ```
 Check your btrfs subvolumes:
 ```
-# btrfs sub list /
+btrfs sub list /
 ```
 Now you have a new subvolume for snapshot but there is a problem because the subvolume is below the root subvolume, if you rollback with this configuration /.snapshots will disappear because it depends on the root subvolume.
 ```
@@ -195,12 +217,12 @@ ID 267 gen 87 top level 257 path /.snapshots
 ```
 To fix it you have to delete the /.snapshots subvolume and make the /.snapshots directory again
 ```
-# btrfs sub del /.snapshots/
-# mkdir /.snapshots
+btrfs sub del /.snapshots/
+mkdir /.snapshots
 ```
 Now you have to mount the /.snapshots directory in /etc/fstab
 ```
-# nano -w /etc/fstab
+nano -w /etc/fstab
 ```
 Add this line to /etc/fstab(remember to put your drive instead of the example in the beginning)
 ```
@@ -208,11 +230,11 @@ Add this line to /etc/fstab(remember to put your drive instead of the example in
 ```
 Mount /.snapshots:
 ```
-# mount /.snapshots/
+mount /.snapshots/
 ```
 Check if you have done it correctly with df -Th, it should look something like this:
 ```
-$ df -Th 
+df -Th 
 Filesystem     Type      Size  Used Avail Use% Mounted on
 dev            devtmpfs  3.9G     0  3.9G   0% /dev
 run            tmpfs     3.9G  1.5M  3.9G   1% /run
@@ -231,12 +253,12 @@ tmpfs          tmpfs     784M   72K  784M   1% /run/user/1000
 To enable that snapshots show up in GRUB
 Enable grub-btrfs.path to refresh the shapshot list
 ```
-# systemctl enable grub-btrfs.path
+systemctl enable grub-btrfs.path
 ```
 And enable the snapshot list in the GRUB config
 
 ```
-# nano /etc/default/grub
+nano /etc/default/grub
 ```
 Set this option:
 ```
@@ -244,23 +266,23 @@ GRUB_DISABLE_RECOVERY=false
 ```
 You can exit, now you only have to regenerate the config
 ```
-# grub-mkconfig -o /boot/grub/grub.cfg
+grub-mkconfig -o /boot/grub/grub.cfg
 ```
 # Snapper config
 To enable pre-post pacman snapshots install snap-pac
 ```
-# pacman -S snap-pac
+pacman -S snap-pac
 ```
 To enable boot snapshots enable snapper-boot.timer
 ```
-# systemctl enable snapper-boot.timer
+systemctl enable snapper-boot.timer
 ```
 You can also enable hourly snapshots and a limit to the number of shanpshots you want or other options in the snapper config
 ```
-# nano /etc/snapper/configs/root
+nano /etc/snapper/configs/root
 ```
 To enable hourly snapshots and snapshot cleanup, you have to enable cronie
 ```
-# pacman -S --needed cronie
-# systemctl enable cron.service
+pacman -S --needed cronie
+systemctl enable cron.service
 ```
