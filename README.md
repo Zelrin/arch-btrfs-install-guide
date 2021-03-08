@@ -138,6 +138,7 @@ If you have one partition for root and home
 ```
 mount -o relatime,space_cache=v2,ssd,compress=lzo,subvol=@home /dev/sda2 /mnt/home
 ```
+```
 mount -o relatime,space_cache=v2,ssd,compress=lzo,subvolid=5 /dev/sda2 /mnt/btrfs
 mount /dev/your_drive1 /mnt/boot/efi/
 ```
@@ -175,6 +176,15 @@ bcf boot add 1 fs0:\EFI\GRUB\grubx64.efi "GRUB bootloader"
 exit
 ```
 You can now reboot.
+
+# /tmp cleanup
+This section was definitely not copied from https://github.com/egara/arch-btrfs-installation
+Because of **/tmp** is another subvolume mounted as a traditional partition on */fstab*, temporary files won't be deleted by default when the system boots. This can cause some problems like preventing **insync** to start normally for example, because it uses a temporary file called *insync1000.sock* and if this file already exists, it won't run. In order to clean up */tmp* directory on every reboot, add this configuration file **/etc/tmpfiles.d/tmp.conf** with this content:
+
+```
+# Cleaning up /tmp directory everytime system boots
+D! /tmp 1777 root root 0
+```
 # Snapper 
 I suggest setting snapper up after you have a working system.
 
