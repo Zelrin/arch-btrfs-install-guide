@@ -151,7 +151,7 @@ If you have swap
 swapon /dev/your_drive4 
 ```
 # fstab
-In the fstab file you should remove the entry with the root partition with the mountpooint '/', because
+In the fstab file you should remove the entry with the root partition with the mount point '/', because
 the entry that is mounted at /btrfs, is the root partition (this is at least how I understood what unicks.eu said)
 
 You need to remove this entry:
