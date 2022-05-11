@@ -1,4 +1,7 @@
+# Note: This guide isn't actively maintained and some information might be old
+
 # arch-btrfs-install-guide
+
 This is an Arch UEFI installation guide with btrfs and snapper.
 This guide doesn't contain all the information needed to install Arch.
 It is meant to be used with the Arch installation guide on the Arch wiki, it only contains the diffrences for installing btrfs and snapper, and some other tips.
